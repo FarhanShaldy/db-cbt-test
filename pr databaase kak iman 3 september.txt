@@ -1,0 +1,97 @@
+PR 
+
+Advanced Query - join, grouping, order, filtering, like between dan biasa, avg, sum 
+1. nilai rata-rata satu sekolah - done
+2. tiap mata pelajaran - done
+3. nilai rata-rata /kelas dalam semua mata pelajaran - done
+4. rata-rata per siswa tiap matapelajaran - done
+5. nilai raport (sum) per siswa
+6. waktu penyelesaian ujian (rata-rata Waktu penyelesaian, Waktu paling cepat dikerjakan, Waktu paling lama dikerjakan) 
+
+Jawaban
+1. -- PR No. 1 Nilai Rata-Rata Tiap Ujian Untuk Satu Sekolah
+
+select exam_types.name as "Nama Ujian", truncate(avg(exam_attempts.score_total),2) as "Nilai Rata-Rata"
+from exams
+join exam_attempts on exams.id = exam_attempts.exam_id
+join exam_types on exams.exam_type_id = exam_types.id
+group by exam_types.id
+order by exam_types.id;
+
+2. -- PR No. 2 Nilai Rata-Rata Tiap Matapelajaran Untuk Satu Sekolah
+
+select subjects.name as "Nama Matapelajaran", truncate(avg(exam_attempts.score_total),2) as "Nilai Rata-Rata"
+from exams
+join exam_attempts on exams.id = exam_attempts.exam_id
+join subjects on exams.subject_id = subjects.id
+group by subjects.id
+order by subjects.id;
+
+3. -- PR No. 3 Menampilkan Nilai Matapelajaran / kelas tiap matapelajaran 
+select classes.name as "Nama Kelas", subjects.name as "Nama Matapelajaran", truncate(avg(exam_attempts.score_total),2) as "Nilai Rata-Rata"
+from exams
+join exam_attempts on exams.id = exam_attempts.exam_id
+join exam_types on exams.exam_type_id = exam_types.id
+join subjects on exams.subject_id = subjects.id
+join classes on exams.class_id = classes.id
+where exams.class_id = "1"
+group by classes.id, subjects.id
+order by classes.id;
+
+4. -- PR No. 4 Nilai Rata-Rata per Siswa tiap Matapelajaran
+select users.name as "Nama Siswa", classes.name as "Kelas", subjects.name as "Matapelajaran", semesters.name , student_results.nilai_akhir as "Total Rata-Rata Nilai"
+from student_results
+join students on student_results.student_id = students.id
+join users on students.user_id = users.id
+join classes on student_results.class_id = classes.id
+join subjects on student_results.subject_id = subjects.id
+join semesters on student_results.semester_id = semesters.id
+where student_results.student_id = "1";
+
+5. -- PR No. 5 Nilai raport siswa per Siswa tiap Matapelajaran
+select users.name as "Nama Siswa", classes.name as "Kelas", subjects.name as "Matapelajaran", semesters.name as "Semester", academic_years.name as "Tahun AJaran",
+student_results.avg_uh as "Nilai Rata-Rata Ulangan Harian", student_results.avg_uts as "Nilai UTS", student_results.avg_uas as "Nilai UAS", 
+student_results.nilai_akhir as "Total Rata-Rata Nilai"
+from student_results
+join students on student_results.student_id = students.id
+join users on students.user_id = users.id
+join classes on student_results.class_id = classes.id
+join subjects on student_results.subject_id = subjects.id
+join semesters on student_results.semester_id = semesters.id
+join academic_years on semesters.academic_year_id = academic_years.id
+where student_results.student_id = "1";
+
+6a. -- PR No. 6a Rata-Rata Waktu Pengerjaan 
+select sec_to_time(round(avg(exam_attempts.duration_seconds),2)) as "Rata-Rata Waktu Penyelesaian"
+from exam_attempts;
+
+6b. -- PR No. 6b Waktu Tercepat Pengerjaan
+select users.name as "Nama Siswa", classes.name as "Kelas", subjects.name as "Matapelajaran", sub.title as "Nama Ujian", sub.duration_seconds as "Waktu Pengerjaan"
+from (
+    select student_id, duration_seconds, title, class_id, subject_id
+    from exams
+    join exam_attempts on exams.id = exam_attempts.exam_id
+    where duration_seconds is not null
+    order by duration_seconds asc
+    limit 1
+) sub
+join classes on sub.class_id = classes.id
+JOIN subjects on sub.subject_id = subjects.id
+join students on sub.student_id = students.id
+join users  on students.user_id = users.id;
+
+6c. --PR No. 6c Waktu Terlama Pengerjaan
+select users.name as "Nama Siswa", classes.name as "Kelas", subjects.name as "Matapelajaran", sub.title as "Nama Ujian", sub.duration_seconds as "Waktu Pengerjaan"
+from (
+    select student_id, duration_seconds, title, class_id, subject_id
+    from exams
+    join exam_attempts on exams.id = exam_attempts.exam_id
+    where duration_seconds is not null
+    order by duration_seconds desc
+    limit 1
+) sub
+join classes on sub.class_id = classes.id
+JOIN subjects on sub.subject_id = subjects.id
+join students on sub.student_id = students.id
+join users  on students.user_id = users.id;
+
