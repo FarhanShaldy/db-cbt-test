@@ -66,6 +66,16 @@ select sec_to_time(round(avg(exam_attempts.duration_seconds),2)) as "Rata-Rata W
 from exam_attempts;
 
 6b. -- PR No. 6b Waktu Tercepat Pengerjaan
+select min(duration_seconds) from exam_attempts;
+
+
+6c. --PR No. 6c Waktu Terlama Pengerjaan
+select max(duration_seconds) from exam_attempts;
+
+
+
+query jaga-jaga
+
 select users.name as "Nama Siswa", classes.name as "Kelas", subjects.name as "Matapelajaran", sub.title as "Nama Ujian", sub.duration_seconds as "Waktu Pengerjaan"
 from (
     select student_id, duration_seconds, title, class_id, subject_id
@@ -80,7 +90,6 @@ JOIN subjects on sub.subject_id = subjects.id
 join students on sub.student_id = students.id
 join users  on students.user_id = users.id;
 
-6c. --PR No. 6c Waktu Terlama Pengerjaan
 select users.name as "Nama Siswa", classes.name as "Kelas", subjects.name as "Matapelajaran", sub.title as "Nama Ujian", sub.duration_seconds as "Waktu Pengerjaan"
 from (
     select student_id, duration_seconds, title, class_id, subject_id
@@ -94,4 +103,3 @@ join classes on sub.class_id = classes.id
 JOIN subjects on sub.subject_id = subjects.id
 join students on sub.student_id = students.id
 join users  on students.user_id = users.id;
-
